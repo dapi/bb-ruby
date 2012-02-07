@@ -289,10 +289,26 @@ module BBRuby
       # parse bbcode tags
       case method
       when :enable
-        tags_definition.each_value { |t| text.gsub!(t[0], t[1]) if tags.include?(t[4]) }
+        tags_definition.each_value do |t|
+          next unless tags.include?(t[4])
+          v = t[1]
+          if v.is_a? Proc
+            text.gsub! t[0], &v
+          else
+            text.gsub! t[0], v
+          end
+        end
       when :disable
         # this works nicely because the default is disable and the default set of tags is [] (so none disabled) :)
-        tags_definition.each_value { |t| text.gsub!(t[0], t[1]) unless tags.include?(t[4]) }
+        tags_definition.each_value do |t|
+          next if tags.include?(t[4])
+          v = t[1]
+          if v.is_a? Proc
+            text.gsub! t[0], &v
+          else
+            text.gsub! t[0], v
+          end
+        end
       end
       
       text
